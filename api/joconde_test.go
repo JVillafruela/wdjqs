@@ -161,3 +161,53 @@ func TestJSONtoArtwork(t *testing.T) {
 		})
 	}
 }
+
+func Test_isWordUpper(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"Simple name uppercase", args{"DELAUNAY"}, true},
+		{"Hyphenated name uppercase", args{"CASIMIR-PERIER"}, true},
+		{"Hyphenated name uppercase national", args{"CASIMIR-PÉRIER"}, true},
+		{"Multiple name uppercase", args{"DE LA TOUR"}, true},
+		{"Simple name mixed case", args{"Delaunay"}, false},
+		{"Simple name lower case", args{"delaunay"}, false},
+		{"Hyphenated name lowercase", args{"Casimir-Perier"}, false},
+		{"Hyphenated name lowercase", args{"Casimir-Périer"}, false},
+		{"Multiple name mixedcase", args{"De la TOUR"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isWordUpper(tt.args.s); got != tt.want {
+				t.Errorf("isWordUpper() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReverseName(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"Simple name uppercase", args{"DELAUNAY"}, "DELAUNAY"},
+		{"lastname uppercase firstname mixed", args{"DELAUNAY Robert"}, "Robert DELAUNAY"},
+		{"firstname mixed lastname uppercase", args{"Robert DELAUNAY"}, "Robert DELAUNAY"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ReverseName(tt.args.name); got != tt.want {
+				t.Errorf("ReverseName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

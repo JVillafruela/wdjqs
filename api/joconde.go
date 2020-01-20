@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
+	"unicode"
 
 	"github.com/tidwall/gjson"
 )
@@ -76,4 +78,40 @@ func GetArtwork(ref string) (Artwork, error) {
 		return Artwork{}, err
 	}
 	return JSONtoArtwork(ref, js)
+}
+
+// ReverseName : Reverse name sent by Joconde api
+// "LAST NAME First name" => "First name LAST NAME"
+// "LA TOUR Georges de" => "Georges de LA TOUR"
+func ReverseName(name string) string {
+	const space = " "
+	firstName := []string{}
+	lastName := []string{}
+
+	words := strings.Split(name, space)
+	for _, word := range words {
+		if isWordUpper(word) {
+			lastName = append(lastName, word)
+			continue
+		}
+		firstName = append(firstName, word)
+	}
+	fl := ""
+	if len(firstName) > 0 {
+		fl = strings.Join(firstName, space)
+		if len(lastName) > 0 {
+			fl = fl + space
+		}
+	}
+	fl = fl + strings.Join(lastName, space)
+	return fl
+}
+
+func isWordUpper(s string) bool {
+	for _, r := range s {
+		if !unicode.IsUpper(r) && unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return true
 }
