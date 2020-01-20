@@ -2,10 +2,11 @@ package api
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
-const js = `
+const js1 = `
 {
 	"total_count": 1,
 	"links": [
@@ -101,6 +102,9 @@ const js = `
 `
 
 func TestJSONtoArtwork(t *testing.T) {
+	js0 := strings.ReplaceAll(js1, "\"total_count\": 1", "\"total_count\": 0")
+	js2 := strings.ReplaceAll(js1, "\"total_count\": 1", "\"total_count\": 2")
+
 	type args struct {
 		ref string
 		js  string
@@ -113,7 +117,7 @@ func TestJSONtoArtwork(t *testing.T) {
 	}{
 		{
 			"09940004427 (Saint Jérôme à l'auréole)",
-			args{"09940004427", js},
+			args{"09940004427", js1},
 			Artwork{
 				AcquisitionDate: "1800",
 				Author:          "LA TOUR Georges de",
@@ -130,6 +134,18 @@ func TestJSONtoArtwork(t *testing.T) {
 				Vintage:         "1628 entre ; 1630 et",
 			},
 			false,
+		},
+		{
+			"99999999999 not found",
+			args{"99999999999", js0},
+			Artwork{},
+			true,
+		},
+		{
+			"99999999999 mutiple records",
+			args{"99999999999", js2},
+			Artwork{},
+			true,
 		},
 	}
 	for _, tt := range tests {

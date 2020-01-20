@@ -15,5 +15,3 @@ func main() {
 	}
 	fmt.Printf("%v \n", a)
 }
-
-//C:\Users\Jerome\go\src\github.com\JVillafruela\wdjqs\api

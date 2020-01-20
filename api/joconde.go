@@ -9,6 +9,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+// schemas : https://github.com/betagouv/pop/blob/master/apps/api/doc/joconde.md
+
 // Artwork data read from Joconde API
 type Artwork struct {
 	AcquisitionDate string
