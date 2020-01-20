@@ -202,6 +202,7 @@ func TestReverseName(t *testing.T) {
 		{"Simple name uppercase", args{"DELAUNAY"}, "DELAUNAY"},
 		{"lastname uppercase firstname mixed", args{"DELAUNAY Robert"}, "Robert DELAUNAY"},
 		{"firstname mixed lastname uppercase", args{"Robert DELAUNAY"}, "Robert DELAUNAY"},
+		{"LA TOUR Georges de", args{"LA TOUR Georges de"}, "Georges de LA TOUR"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
