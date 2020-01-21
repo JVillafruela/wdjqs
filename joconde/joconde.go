@@ -78,7 +78,7 @@ func ReverseName(name string) string {
 	firstName := []string{}
 	lastName := []string{}
 
-	words := strings.Split(name, space) //TODO use strings.Fields
+	words := strings.Fields(name)
 	for _, word := range words {
 		if isWordUpper(word) {
 			lastName = append(lastName, word)
