@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/JVillafruela/wdjqs/api"
+	"github.com/JVillafruela/wdjqs/joconde"
 )
 
 func main() {
 	ref := "09940004427"
-	a, err := api.GetArtwork(ref)
+	a, err := joconde.GetArtwork(ref)
 	if err != nil {
 		log.Fatal("Error : ", err)
 	}

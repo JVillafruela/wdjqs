@@ -1,4 +1,4 @@
-package api
+package joconde
 
 import (
 	"errors"
@@ -43,6 +43,7 @@ func callAPI(url string) (string, error) {
 		log.Fatal(err)
 	}
 	request.Header.Set("User-Agent", "wdjqs https://github.com/JVillafruela/wdjqs")
+	request.Header.Set("Accept", "application/json")
 
 	// Make request
 	res, err := client.Do(request)
