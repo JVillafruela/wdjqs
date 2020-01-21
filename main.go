@@ -4,14 +4,22 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/JVillafruela/wdjqs/joconde"
+	"github.com/JVillafruela/wdjqs/wd"
 )
 
 func main() {
-	ref := "09940004427"
-	a, err := joconde.GetArtwork(ref)
+	/*
+		ref := "09940004427"
+		a, err := joconde.GetArtwork(ref)
+		if err != nil {
+			log.Fatal("Error : ", err)
+		}
+		fmt.Printf("%v \n", a)
+	*/
+
+	js, err := wd.FindAuthor("Georges de La Tour")
 	if err != nil {
 		log.Fatal("Error : ", err)
 	}
-	fmt.Printf("%v \n", a)
+	fmt.Printf("%v \n", js)
 }

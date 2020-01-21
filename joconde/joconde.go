@@ -2,13 +2,10 @@ package joconde
 
 import (
 	"errors"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"strings"
-	"time"
 	"unicode"
 
+	"github.com/JVillafruela/wdjqs/api"
 	"github.com/tidwall/gjson"
 )
 
@@ -31,38 +28,10 @@ type Artwork struct {
 	Vintage         string
 }
 
-func callAPI(url string) (string, error) {
-	// Create HTTP client with timeout
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
-
-	// Create and modify HTTP request before sending
-	request, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	request.Header.Set("User-Agent", "wdjqs https://github.com/JVillafruela/wdjqs")
-	request.Header.Set("Accept", "application/json")
-
-	// Make request
-	res, err := client.Do(request)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-	dataInBytes, err := ioutil.ReadAll(res.Body)
-	return string(dataInBytes), err
-}
-
 func callArtworkAPI(ref string) (string, error) {
 	url := "https://data.culturecommunication.gouv.fr/api/v2/catalog/datasets/base-joconde-extrait/records?where=%22" + ref + "%22&rows=10&pretty=false"
 
-	return callAPI(url)
+	return api.CallAPI(url)
 }
 
 func JSONtoArtwork(ref string, js string) (Artwork, error) {
@@ -109,7 +78,7 @@ func ReverseName(name string) string {
 	firstName := []string{}
 	lastName := []string{}
 
-	words := strings.Split(name, space)
+	words := strings.Split(name, space) //TODO use strings.Fields
 	for _, word := range words {
 		if isWordUpper(word) {
 			lastName = append(lastName, word)
