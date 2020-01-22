@@ -152,7 +152,7 @@ func FindMuseumByMuseoID(museo string) (string, error) {
 
 //FindArtworkByInventory : lookup artwork on inventory number
 func FindArtworkByInventory(inv string, museum string) (string, error) {
-	sparql := `SELECT ?artwork WHERE {?item wdt:P217 "%s"}`
+	sparql := `SELECT ?item WHERE {?item wdt:P217 "%s"}`
 	js, err := callWDQueryService(sparql, inv)
 	if err != nil {
 		return "", err
@@ -173,4 +173,29 @@ func FindArtworkByInventory(inv string, museum string) (string, error) {
 
 	return qids[0], nil
 
+}
+
+// FindCityByName : lookup city by name
+func FindCityByName(name string) (string, error) {
+	sparql := `SELECT ?item WHERE {
+		?item wdt:P1448 "%s"@fr. 
+		?item wdt:P31 wd:Q484170. } ` // Commune of France
+	js, err := callWDQueryService(sparql, name)
+	if err != nil {
+		return "", err
+	}
+
+	qids, err := getQidsFromJSON(js)
+	if err != nil {
+		return "", err
+	}
+	if len(qids) == 0 {
+		log.Printf("City not found '%s'  \n", name)
+		return "", nil
+	}
+	if len(qids) > 1 {
+		log.Printf("Multiple values found for city '%s' : %s \n", name, strings.Join(qids, ","))
+	}
+
+	return qids[0], nil
 }

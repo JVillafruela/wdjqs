@@ -25,7 +25,21 @@ func main() {
 		fmt.Printf("%v \n", js)
 	*/
 
-	qid, err := wd.FindMuseumByMuseoID("M0994")
+	/*
+		qid, err := wd.FindMuseumByMuseoID("M0994")
+		if err != nil {
+			log.Fatal("Error : ", err)
+		}
+		fmt.Printf("%v \n", qid)
+	*/
+	/*
+		qid, err := wd.FindArtworkByInventory("MG 2998", "")
+		if err != nil {
+			log.Fatal("Error : ", err)
+		}
+		fmt.Printf("%v \n", qid)
+	*/
+	qid, err := wd.FindCityByName("Vienne")
 	if err != nil {
 		log.Fatal("Error : ", err)
 	}
