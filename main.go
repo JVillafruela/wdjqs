@@ -17,9 +17,18 @@ func main() {
 		fmt.Printf("%v \n", a)
 	*/
 
-	js, err := wd.FindAuthor("Georges de La Tour")
+	/*
+		js, err := wd.FindAuthor("Georges de La Tour")
+		if err != nil {
+			log.Fatal("Error : ", err)
+		}
+		fmt.Printf("%v \n", js)
+	*/
+
+	qid, err := wd.FindMuseumByMuseoID("M0994")
 	if err != nil {
 		log.Fatal("Error : ", err)
 	}
-	fmt.Printf("%v \n", js)
+	fmt.Printf("%v \n", qid)
+
 }

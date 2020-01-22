@@ -35,7 +35,7 @@ func FindAuthor(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	qids, err := findAuthorDecodeJSON(js)
+	qids, err := getQidsFromJSON(js)
 	if err != nil {
 		return "", err
 	}
@@ -50,9 +50,11 @@ func FindAuthor(name string) (string, error) {
 	return qids[0], nil
 }
 
-func findAuthorDecodeJSON(js string) ([]string, error) {
+// get QIDs from json query result
+// variable for item must be named "item" : SELECT ?item,...
+func getQidsFromJSON(js string) ([]string, error) {
 	if !gjson.Valid(js) {
-		return []string{}, errors.New("findAuthorDecodeJson : Invalid json")
+		return []string{}, errors.New("getQidsFromJSON : Invalid json")
 	}
 	/*  no result :
 	{
@@ -112,4 +114,40 @@ func getQid(uri string) string {
 	i := strings.LastIndex(uri, "/") + 1
 	qid := uri[i:]
 	return qid
+}
+
+// FindMuseumByMuseoID : lookup for museum item by museo number
+func FindMuseumByMuseoID(museo string) (string, error) {
+	const endpoint = "https://query.wikidata.org/sparql?query=%s&format=json"
+	query := fmt.Sprintf(`SELECT ?item WHERE {?item wdt:P539 "%s"}`, museo)
+	url := fmt.Sprintf(endpoint, url.PathEscape(query))
+	js, err := api.CallAPI(url)
+	if err != nil {
+		return "", err
+	}
+
+	qids, err := getQidsFromJSON(js)
+	if err != nil {
+		return "", err
+	}
+	if len(qids) == 0 {
+		log.Printf("Museum not found for museo id '%s'  \n", museo)
+		return "", nil
+	}
+	if len(qids) > 1 {
+		log.Printf("Multiple values found for museo id '%s' : %s \n", museo, strings.Join(qids, ","))
+	}
+
+	return qids[0], nil
+}
+
+func FindArtworkByInventory(inv string, museum string) (string, error) {
+	sparql := `
+		SELECT ?artwork WHERE {
+			?artwork wdt:P217 "MG 2998"
+		}          
+		
+	`
+	// +++ si 0 ou 1 ok si >1 faire condition sur musée
+	return sparql, nil
 }

@@ -27,7 +27,7 @@ func Test_getQid(t *testing.T) {
 	}
 }
 
-func Test_findAuthorDecodeJSON(t *testing.T) {
+func Test_getQidsFromJSON(t *testing.T) {
 	const js0 = `
 	{
 		"head": {
@@ -120,19 +120,19 @@ func Test_findAuthorDecodeJSON(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{"Malformed json", args{jsKO}, []string{}, true},
-		{"Author not found", args{js0}, []string{}, false},
-		{"Author found", args{js1}, []string{"Q203371"}, false},
-		{"Multiple authors found", args{js2}, []string{"Q1", "Q2"}, false},
+		{"No item", args{js0}, []string{}, false},
+		{"One item found", args{js1}, []string{"Q203371"}, false},
+		{"Multiple items found", args{js2}, []string{"Q1", "Q2"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findAuthorDecodeJSON(tt.args.js)
+			got, err := getQidsFromJSON(tt.args.js)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("findAuthorDecodeJSON() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("getQidsFromJSON() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("findAuthorDecodeJSON() = %v, want %v", got, tt.want)
+				t.Errorf("getQidsFromJSON() = %v, want %v", got, tt.want)
 			}
 		})
 	}
