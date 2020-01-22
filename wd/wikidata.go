@@ -116,12 +116,21 @@ func getQid(uri string) string {
 	return qid
 }
 
-// FindMuseumByMuseoID : lookup for museum item by museo number
-func FindMuseumByMuseoID(museo string) (string, error) {
+func callWDQueryService(sparql, param string) (string, error) {
 	const endpoint = "https://query.wikidata.org/sparql?query=%s&format=json"
-	query := fmt.Sprintf(`SELECT ?item WHERE {?item wdt:P539 "%s"}`, museo)
+	query := fmt.Sprintf(sparql, param)
 	url := fmt.Sprintf(endpoint, url.PathEscape(query))
 	js, err := api.CallAPI(url)
+	if err != nil {
+		return "", err
+	}
+	return js, nil
+}
+
+// FindMuseumByMuseoID : lookup for museum item by museo number
+func FindMuseumByMuseoID(museo string) (string, error) {
+	sparql := `SELECT ?item WHERE {?item wdt:P539 "%s"}`
+	js, err := callWDQueryService(sparql, museo)
 	if err != nil {
 		return "", err
 	}
@@ -141,13 +150,27 @@ func FindMuseumByMuseoID(museo string) (string, error) {
 	return qids[0], nil
 }
 
+//FindArtworkByInventory : lookup artwork on inventory number
 func FindArtworkByInventory(inv string, museum string) (string, error) {
-	sparql := `
-		SELECT ?artwork WHERE {
-			?artwork wdt:P217 "MG 2998"
-		}          
-		
-	`
-	// +++ si 0 ou 1 ok si >1 faire condition sur musée
-	return sparql, nil
+	sparql := `SELECT ?artwork WHERE {?item wdt:P217 "%s"}`
+	js, err := callWDQueryService(sparql, inv)
+	if err != nil {
+		return "", err
+	}
+
+	qids, err := getQidsFromJSON(js)
+	if err != nil {
+		return "", err
+	}
+	if len(qids) == 0 {
+		log.Printf("Artwork not found for inventory number '%s' museum '%s' \n", inv, museum)
+		return "", nil
+	}
+	if len(qids) > 1 {
+		log.Printf("Multiple artworks found for inventory number '%s' : %s \n", inv, strings.Join(qids, ","))
+		//TODO qury on inventory qualified by museum
+	}
+
+	return qids[0], nil
+
 }
