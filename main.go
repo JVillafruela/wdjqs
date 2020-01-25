@@ -1,12 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"log"
-
-	"github.com/JVillafruela/wdjqs/wd"
-)
-
 func main() {
 	/*
 		ref := "09940004427"
@@ -39,10 +32,18 @@ func main() {
 		}
 		fmt.Printf("%v \n", qid)
 	*/
-	qid, err := wd.FindCityByName("Vienne")
-	if err != nil {
-		log.Fatal("Error : ", err)
-	}
-	fmt.Printf("%v \n", qid)
-
+	/*
+		qid, err := wd.FindCityByName("Vienne")
+		if err != nil {
+			log.Fatal("Error : ", err)
+		}
+		fmt.Printf("%v \n", qid)
+	*/
+	/*
+		qid, err := wd.FindDomain("zz")
+		if err != nil {
+			log.Println("FindDomain : ", err)
+		}
+		fmt.Printf("%v \n", qid)
+	*/
 }
