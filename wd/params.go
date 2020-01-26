@@ -1,9 +1,13 @@
 package wd
 
-import "errors"
+import (
+	"fmt"
+)
 
 /* precomputed items for Joconde database
-   source : db dumb in csv format
+   source : db dump in csv format
+*/
+type dict map[string]string
 
 /* xsv frequency -s "Domaine" joconde.tsv | xsv table
 field    value                      count
@@ -18,8 +22,6 @@ Domaine  céramique                  9731
 Domaine  estampe;ethnologie         6821
 Domaine  archéologie;âge du bronze  5827
 */
-
-type dict map[string]string
 
 var domains = dict{
 	"dessin":                    "Q93184",
@@ -51,9 +53,9 @@ Matériaux-techniques  fer                         5553
 
 var materials = dict{
 	"(NULL)":                     "",
-	"bronze":                     "Q34095", // copper alloy
-	"fer":                        "",
-	"mine de plomb":              "Q868239", //TODO toile support de peinture
+	"bronze":                     "Q34095",  // copper alloy
+	"fer":                        "",        // ???
+	"mine de plomb":              "Q868239", //TODO toile : s'applique à support de peinture
 	"peinture à l'huile (toile)": "Q296955",
 	"peinture à l'huile;toile":   "Q296955",
 	"peinture à l'huile, toile":  "Q296955",
@@ -62,34 +64,26 @@ var materials = dict{
 	"terre cuite":                "Q60424",
 }
 
-// FindDomain : find qid for domain, subclass of visual arts
-func FindDomain(domain string) (string, error) {
-	if domain == "" {
+func findInDict(d dict, search string, msgNotFound, msgNoQID string) (string, error) {
+	if search == "" || search == "(NULL)" {
 		return "", nil
 	}
-
-	qid, found := domains[domain]
+	qid, found := d[search]
 	if !found {
-		return "", errors.New("Domain not found : " + domain)
+		return "", fmt.Errorf(msgNotFound, search)
 	}
 	if qid == "" {
-		return "", errors.New("No QID for domain : " + domain)
+		return "", fmt.Errorf(msgNoQID, search)
 	}
 	return qid, nil
 }
 
+// FindDomain : find qid for domain, subclass of visual arts
+func FindDomain(domain string) (string, error) {
+	return findInDict(domains, domain, "Domain not found : %s", "No QID for domain : %s")
+}
+
 // FindMaterial : find qid for material
 func FindMaterial(material string) (string, error) {
-	if material == "" || material == "(NULL)" {
-		return "", nil
-	}
-
-	qid, found := materials[material]
-	if !found {
-		return "", errors.New("Material not found : " + material)
-	}
-	if qid == "" {
-		return "", errors.New("No QID for material : " + material)
-	}
-	return qid, nil
+	return findInDict(materials, material, "Material not found : %s", "No QID for material : %s")
 }
