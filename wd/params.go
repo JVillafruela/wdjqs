@@ -19,9 +19,9 @@ Domaine  estampe;ethnologie         6821
 Domaine  archéologie;âge du bronze  5827
 */
 
-type Dict map[string]string
+type dict map[string]string
 
-var domains = Dict{
+var domains = dict{
 	"dessin":                    "Q93184",
 	"peinture":                  "Q3305213",
 	"estampe":                   "Q11060274",
@@ -32,6 +32,34 @@ var domains = Dict{
 	"céramique":                 "Q13464614", //céramique d'art ?
 	"estampe;ethnologie":        "",
 	"archéologie;âge du bronze": "",
+}
+
+/*
+xsv frequency -s 17 joconde.tsv | xsv table
+field                 value                       count
+Matériaux-techniques  (NULL)                      56700
+Matériaux-techniques  mine de plomb               33175
+Matériaux-techniques  peinture à l'huile;toile    24905
+Matériaux-techniques  peinture à l'huile, toile   12782
+Matériaux-techniques  silex                       7395
+Matériaux-techniques  bronze                      6190
+Matériaux-techniques  plâtre                      6032
+Matériaux-techniques  peinture à l'huile (toile)  5630
+Matériaux-techniques  terre cuite                 5586
+Matériaux-techniques  fer                         5553
+*/
+
+var materials = dict{
+	"(NULL)":                     "",
+	"bronze":                     "Q34095", // copper alloy
+	"fer":                        "",
+	"mine de plomb":              "Q868239", //TODO toile support de peinture
+	"peinture à l'huile (toile)": "Q296955",
+	"peinture à l'huile;toile":   "Q296955",
+	"peinture à l'huile, toile":  "Q296955",
+	"plâtre":                     "Q3392817",
+	"silex":                      "Q83087",
+	"terre cuite":                "Q60424",
 }
 
 // FindDomain : find qid for domain, subclass of visual arts
@@ -46,6 +74,22 @@ func FindDomain(domain string) (string, error) {
 	}
 	if qid == "" {
 		return "", errors.New("No QID for domain : " + domain)
+	}
+	return qid, nil
+}
+
+// FindMaterial : find qid for material
+func FindMaterial(material string) (string, error) {
+	if material == "" || material == "(NULL)" {
+		return "", nil
+	}
+
+	qid, found := materials[material]
+	if !found {
+		return "", errors.New("Material not found : " + material)
+	}
+	if qid == "" {
+		return "", errors.New("No QID for material : " + material)
 	}
 	return qid, nil
 }
