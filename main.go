@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/JVillafruela/wdjqs/joconde"
 	"github.com/JVillafruela/wdjqs/wd"
@@ -17,13 +18,19 @@ func main() {
 	}
 	log.Printf("Found ref %s in joconde database : %s\n", ref, a.Title)
 
-	log.Printf("Looking for author %s\n", joconde.ReverseName(a.Author))
-	qid, err := wd.FindAuthor(joconde.ReverseName(a.Author))
-	if err != nil {
-		log.Fatal("Error : ", err)
-	}
-	if qid != "" {
-		log.Printf("Found author : %s \n", qid)
+	// TODO call to WDQS does not work reliably ?
+	name := joconde.ReverseName(a.Author)
+	for i := 0; i < 3; i++ {
+		log.Printf("Looking for author %s (try #%d)\n", name, i+1)
+		qid, err := wd.FindAuthor(name)
+		if err != nil {
+			log.Println("Error : ", err)
+		}
+		if qid != "" {
+			log.Printf("Found author : %s \n", qid)
+			break
+		}
+		time.Sleep(10 * time.Second)
 	}
 
 	/*

@@ -14,7 +14,7 @@ import (
 // FindAuthor : Find Author entity by name
 func FindAuthor(name string) (string, error) {
 
-	const endpoint = "https://query.wikidata.org/bigdata/namespace/wdq/sparql?query=%s&format=json"
+	// const endpoint = "https://query.wikidata.org/bigdata/namespace/wdq/sparql?query=%s&format=json"
 
 	const sparql = `
 	SELECT * WHERE {
@@ -29,9 +29,10 @@ func FindAuthor(name string) (string, error) {
 		?item (wdt:P279|wdt:P31) wd:Q5
 	} ORDER BY ASC(?num) LIMIT 5 `
 
-	query := fmt.Sprintf(sparql, name)
-	url := fmt.Sprintf(endpoint, url.PathEscape(query))
-	js, err := api.CallAPI(url)
+	//query := fmt.Sprintf(sparql, name)
+	//url := fmt.Sprintf(endpoint, url.PathEscape(query))
+	//js, err := api.CallAPI(url)
+	js, err := callWDQueryService(sparql, name)
 	if err != nil {
 		return "", err
 	}
