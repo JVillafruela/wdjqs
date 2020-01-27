@@ -164,11 +164,12 @@ func FindArtworkByInventory(inv string, museum string) (string, error) {
 		return "", err
 	}
 	if len(qids) == 0 {
-		log.Printf("Artwork not found for inventory number '%s' museum '%s' \n", inv, museum)
+		log.Printf("Artwork not found for inventory number '%s' \n", inv)
 		return "", nil
 	}
 	if len(qids) > 1 {
 		log.Printf("Multiple artworks found for inventory number '%s' : %s \n", inv, strings.Join(qids, ","))
+		log.Printf("TODO refine query by museum '%s' ", museum)
 		//TODO qury on inventory qualified by museum
 	}
 

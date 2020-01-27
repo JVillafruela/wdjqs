@@ -105,3 +105,10 @@ func isWordUpper(s string) bool {
 	}
 	return true
 }
+
+// GetMainTitle : returns the main title
+// "Saint Jérôme pénitent#Dit aussi Saint Jérôme à l'auréole" => "Saint Jérôme pénitent"
+func GetMainTitle(title string) string {
+	titles := strings.Split(title, "#")
+	return titles[0]
+}

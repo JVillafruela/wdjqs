@@ -212,3 +212,25 @@ func TestReverseName(t *testing.T) {
 		})
 	}
 }
+
+func TestGetMainTitle(t *testing.T) {
+	type args struct {
+		title string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"Empty title", args{""}, ""},
+		{"Main title", args{"Saint Jérôme pénitent"}, "Saint Jérôme pénitent"},
+		{"Two titles", args{"Saint Jérôme pénitent#Dit aussi Saint Jérôme à l'auréole"}, "Saint Jérôme pénitent"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetMainTitle(tt.args.title); got != tt.want {
+				t.Errorf("GetMainTitle() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
