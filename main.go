@@ -18,6 +18,7 @@ func main() {
 		PInventory     = "P217"
 		PMaterial      = "P186"
 		PJocondeID     = "P347"
+		PTitle         = "P1476"
 	)
 
 	ref := "09940004427"
@@ -30,6 +31,7 @@ func main() {
 
 	item := wd.Item{Lang: "fr"}
 	item.Label = joconde.GetMainTitle(a.Title)
+	item.Add(PTitle, item.Label)
 
 	// TODO call to WDQS does not work reliably (2020-01-27) ?
 	// in WDQS sometimes I got "Query timeout limit reached"
@@ -65,7 +67,7 @@ func main() {
 		log.Println("Error : ", err)
 	}
 	if qid != "" {
-		log.Fatalf("Error : artwork with same inventory found %s\n", qid)
+		log.Fatalf("Error : artwork with same inventory number found %s\n", qid)
 	}
 	item.Add(PInventory, a.Inventory)
 
@@ -100,5 +102,11 @@ func main() {
 
 	item.Add(PJocondeID, a.Reference)
 
-	log.Printf("Item : %v\n", item)
+	item.Qid = wd.QSandbox
+	item.WriteQS("qs.txt")
+	if err != nil {
+		log.Println("WriteQS : ", err)
+	}
+
+	log.Println("Statements writte in qs.txt")
 }
