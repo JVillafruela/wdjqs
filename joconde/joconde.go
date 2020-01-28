@@ -23,9 +23,15 @@ type Artwork struct {
 	Materials       string
 	Museo           string
 	Reference       string
+	ReferenceURL    string
 	School          string
 	Title           string
 	Vintage         string
+}
+
+// ReferenceURL : gives the url for reference
+func ReferenceURL(ref string) string {
+	return "https://www.pop.culture.gouv.fr/notice/joconde/" + ref
 }
 
 func callArtworkAPI(ref string) (string, error) {
@@ -57,6 +63,8 @@ func JSONtoArtwork(ref string, js string) (Artwork, error) {
 	a.School = gjson.Get(js, "records.0.record.fields.ecol").String()
 	a.Title = gjson.Get(js, "records.0.record.fields.titr").String()
 	a.Vintage = gjson.Get(js, "records.0.record.fields.mill").String()
+
+	a.ReferenceURL = ReferenceURL(ref)
 
 	return a, nil
 }
