@@ -11,12 +11,13 @@ import (
 func main() {
 
 	const (
-		PInstanceOf = "P31"
-		PCreator    = "P170"
-		PLocation   = "P276"
-		PInventory  = "P217"
-		PMaterial   = "P186"
-		PJocondeID  = "P347"
+		PInstanceOf    = "P31"
+		PCreator       = "P170"
+		PAdminLocation = "P131" // localisation administrative
+		PLocation      = "P276"
+		PInventory     = "P217"
+		PMaterial      = "P186"
+		PJocondeID     = "P347"
 	)
 
 	ref := "09940004427"
@@ -31,6 +32,7 @@ func main() {
 	item.Label = joconde.GetMainTitle(a.Title)
 
 	// TODO call to WDQS does not work reliably (2020-01-27) ?
+	// in WDQS sometimes I got "Query timeout limit reached"
 	var qid string
 	name := joconde.ReverseName(a.Author)
 	for i := 0; i < 3; i++ {
@@ -45,7 +47,7 @@ func main() {
 		}
 		time.Sleep(10 * time.Second)
 	}
-	item.Description = a.Domain + " de " + name // peinture de Georges de LA TOUR
+	item.Description = a.Domain + " de " + name // "peinture de Georges de LA TOUR" ou Denomination "tableau" ?
 	item.Add(PCreator, qid)
 
 	qid, err = wd.FindMuseumByMuseoID(a.Museo)
@@ -67,15 +69,15 @@ func main() {
 	}
 	item.Add(PInventory, a.Inventory)
 
-	/*
-		log.Printf("Looking for city %s", a.City)
-		qid, err = wd.FindCityByName(a.City)
-		if err != nil {
-			log.Println("Error : ", err)
-		} else {
-			item.Add(PCity, a.City)
-		}
-	*/
+	log.Printf("Looking for city '%s' ", a.City)
+	qid, err = wd.FindCityByName(a.City)
+	if err != nil {
+		log.Println("Error : ", err)
+	} else {
+		log.Printf("Found city %s", qid)
+		item.Add(PAdminLocation, qid)
+	}
+
 	log.Printf("Looking for domain '%s' ", a.Domain)
 	qid, err = wd.FindDomain(a.Domain)
 	if err != nil {
