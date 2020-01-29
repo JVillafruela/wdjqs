@@ -16,6 +16,7 @@ func main() {
 		PAdminLocation = "P131" // localisation administrative
 		PLocation      = "P276"
 		PInventory     = "P217"
+		PCollection    = "P195"
 		PMaterial      = "P186"
 		PJocondeID     = "P347"
 		PTitle         = "P1476"
@@ -31,7 +32,7 @@ func main() {
 
 	item := wd.Item{Lang: "fr"}
 	item.Label = joconde.GetMainTitle(a.Title)
-	item.Add(PTitle, item.Label)
+	item.AddProperty(PTitle, item.Label)
 
 	// TODO call to WDQS does not work reliably (2020-01-27) ?
 	// in WDQS sometimes I got "Query timeout limit reached"
@@ -50,7 +51,7 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 	item.Description = a.Domain + " de " + name // "peinture de Georges de LA TOUR" ou Denomination "tableau" ?
-	item.Add(PCreator, qid)
+	item.AddProperty(PCreator, qid)
 
 	qid, err = wd.FindMuseumByMuseoID(a.Museo)
 	log.Printf("Looking for museum %s QID=%s", a.Museo, qid)
@@ -58,7 +59,8 @@ func main() {
 		log.Println("Error : ", err)
 	}
 	if qid != "" {
-		item.Add(PLocation, qid)
+		item.AddProperty(PCollection, qid)
+		item.AddProperty(PLocation, qid)
 	}
 
 	log.Printf("Looking for inventory id %s", a.Inventory)
@@ -69,7 +71,10 @@ func main() {
 	if qid != "" {
 		log.Fatalf("Error : artwork with same inventory number found %s\n", qid)
 	}
-	item.Add(PInventory, a.Inventory)
+	item.AddProperty(PInventory, a.Inventory)
+	if item.Properties[PLocation].Value != "" {
+		item.AddQualifier(PInventory, PCollection, item.Properties[PCollection].Value)
+	}
 
 	log.Printf("Looking for city '%s' ", a.City)
 	qid, err = wd.FindCityByName(a.City)
@@ -77,7 +82,7 @@ func main() {
 		log.Println("Error : ", err)
 	} else {
 		log.Printf("Found city %s", qid)
-		item.Add(PAdminLocation, qid)
+		item.AddProperty(PAdminLocation, qid)
 	}
 
 	log.Printf("Looking for domain '%s' ", a.Domain)
@@ -87,7 +92,7 @@ func main() {
 	}
 	if qid != "" {
 		log.Printf("Found domain %s", qid)
-		item.Add(PInstanceOf, qid)
+		item.AddProperty(PInstanceOf, qid)
 	}
 
 	log.Printf("Looking for materials %s", a.Materials)
@@ -97,10 +102,10 @@ func main() {
 	}
 	if qid != "" {
 		log.Printf("Found material %s", qid)
-		item.Add(PMaterial, qid)
+		item.AddProperty(PMaterial, qid)
 	}
 
-	item.Add(PJocondeID, a.Reference)
+	item.AddProperty(PJocondeID, a.Reference)
 
 	item.Qid = wd.QSandbox
 	item.WriteQS("qs.txt")
@@ -108,5 +113,5 @@ func main() {
 		log.Println("WriteQS : ", err)
 	}
 
-	log.Println("Statements writte in qs.txt")
+	log.Println("Statements written in qs.txt")
 }

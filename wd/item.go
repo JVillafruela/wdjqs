@@ -11,7 +11,14 @@ const QSandbox = "Q4115189"
 // PropWithLang : properties needing language qualifier
 var PropWithLang = [...]string{"P1476"}
 
-// Item : a WD item (missing qualifiers)
+// PropertyValue : property value with qualifiers and references
+type PropertyValue struct {
+	Value      string
+	Qualifiers map[string]string
+	Sources    map[string]string
+}
+
+// Item : a WD item
 type Item struct {
 	// Qid of item, empty for creation
 	Qid string
@@ -19,15 +26,29 @@ type Item struct {
 	Lang        string
 	Label       string
 	Description string
-	Properties  map[string]string
+	Properties  map[string]PropertyValue
 }
 
-// Add : add a property to item
-func (it *Item) Add(property, value string) {
+// AddProperty : add a property to item
+func (it *Item) AddProperty(property, value string) {
 	if it.Properties == nil {
-		it.Properties = make(map[string]string)
+		it.Properties = make(map[string]PropertyValue)
 	}
-	it.Properties[property] = value
+	pv, ok := it.Properties[property]
+	if !ok {
+		pv = PropertyValue{Qualifiers: make(map[string]string), Sources: make(map[string]string)}
+	}
+	pv.Value = value
+	it.Properties[property] = pv
+}
+
+// AddQualifier : add a qualifier to a property. Do nothing if property doesn't exist
+func (it *Item) AddQualifier(p, q, value string) {
+	_, ok := it.Properties[p]
+	if !ok {
+		return
+	}
+	it.Properties[p].Qualifiers[q] = value
 }
 
 // WriteQS : writes QuickStatements in file
@@ -46,21 +67,40 @@ func (it *Item) WriteQS(fname string) error {
 		out.WriteString("CREATE " + eol)
 	}
 
-	for prop, value := range it.Properties {
+	for prop, pv := range it.Properties {
 		lang := ""
+		value := pv.Value
 		if value[0:1] != "Q" {
 			if IsPropertyLang(prop) {
 				lang = it.Lang
 			}
 			value = quote(value, lang)
 		}
-		line := fmt.Sprintf("%s\t%s\t%s%s", qid, prop, value, eol)
+		qstr := it.formatQualifiers(prop)
+		line := fmt.Sprintf("%s\t%s\t%s%s%s", qid, prop, value, qstr, eol)
 		_, err := out.WriteString(line)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// format the qualifiers section for property if any
+func (it *Item) formatQualifiers(prop string) string {
+	qstr := ""
+	for qid, qv := range it.Properties[prop].Qualifiers {
+		lang := ""
+		value := qv
+		if qv[0:1] != "Q" {
+			if IsPropertyLang(qid) {
+				lang = it.Lang
+			}
+			value = quote(value, lang)
+		}
+		qstr = fmt.Sprintf("%s\t%s\t%s", qstr, qid, value)
+	}
+	return qstr
 }
 
 //Quote string, prefixing with lang code if needed
