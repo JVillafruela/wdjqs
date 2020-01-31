@@ -13,6 +13,8 @@ const (
 	PCreator       = "P170"
 	PAdminLocation = "P131" // localisation administrative
 	PLocation      = "P276"
+	PHeight        = "P2048"
+	PWidth         = "P2049"
 	PInventory     = "P217"
 	PCollection    = "P195"
 	PMaterial      = "P186"
@@ -43,7 +45,7 @@ func main() {
 	var qid string
 	name := joconde.ReverseName(a.Author)
 	for i := 0; i < 3; i++ {
-		log.Printf("Looking for author %s (try #%d)\n", name, i+1)
+		log.Printf("Looking for author '%s' (try #%d)\n", name, i+1)
 		qid, err = wd.FindAuthor(name)
 		if err != nil {
 			log.Println("Error : ", err)
@@ -67,13 +69,13 @@ func main() {
 		item.AddProperty(PLocation, qid)
 	}
 
-	log.Printf("Looking for inventory id %s", a.Inventory)
+	log.Printf("Looking for inventory id '%s'", a.Inventory)
 	qid, err = wd.FindArtworkByInventory(a.Inventory, qid)
 	if err != nil {
 		log.Println("Error : ", err)
 	}
 	if qid != "" {
-		log.Fatalf("Error : artwork with same inventory number found %s\n", qid)
+		log.Fatalf("Error : artwork with same inventory number found '%s'\n", qid)
 	}
 	item.AddProperty(PInventory, a.Inventory)
 	if item.Properties[PLocation].Value != "" {
@@ -85,7 +87,7 @@ func main() {
 	if err != nil {
 		log.Println("Error : ", err)
 	} else {
-		log.Printf("Found city %s", qid)
+		log.Printf("Found city '%s'", qid)
 		item.AddProperty(PAdminLocation, qid)
 	}
 
@@ -95,25 +97,37 @@ func main() {
 		log.Println("FindDomain : ", err)
 	}
 	if qid != "" {
-		log.Printf("Found domain %s", qid)
+		log.Printf("Found domain '%s'", qid)
 		item.AddProperty(PInstanceOf, qid)
 	}
 
-	log.Printf("Looking for materials %s", a.Materials)
+	log.Printf("Looking for materials '%s'", a.Materials)
 	qid, err = wd.FindMaterial(a.Materials)
 	if err != nil {
 		log.Println("FindMaterial : ", err)
 	}
 	if qid != "" {
-		log.Printf("Found material %s", qid)
+		log.Printf("Found material '%s'", qid)
 		item.AddProperty(PMaterial, qid)
 	}
+
+	// TODO decode a.Dimensions
+	// on ne peut pas avoir de sources sur "somevalue"
+	// item.AddProperty(PHeight, wd.UnknownValue)
+	// item.AddProperty(PWidth, wd.UnknownValue)
 
 	item.AddProperty(PJocondeID, a.Reference)
 
 	addSources(&item, a.ReferenceURL)
 
 	item.Qid = wd.QSandbox
+
+	log.Println("Other infos (to be added manually to WD Item)")
+	log.Println("- Acquisition : ", a.AcquisitionDate)
+	log.Println("- Dimensions  : ", a.Dimensions)
+	log.Println("- School      : ", a.School)
+	log.Println("- Vintage     : ", a.Vintage)
+
 	item.WriteQS("qs.txt")
 	if err != nil {
 		log.Println("WriteQS : ", err)
@@ -123,7 +137,7 @@ func main() {
 }
 
 func addSources(it *wd.Item, url string) {
-	today := time.Now().Format("+2006-01-02T00:00:00Z/11") // YYYY-MM-DD
+	today := time.Now().Format("+2006-01-02T00:00:00Z") + "/11" // YYYY-MM-DD
 	sources := map[string]string{
 		PStatedIn:     wd.QJoconde,
 		PReferenceURL: url,

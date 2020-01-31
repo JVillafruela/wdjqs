@@ -9,6 +9,9 @@ const (
 	QJoconde = "Q809825"
 	// QSandbox : the Sandbox item
 	QSandbox = "Q4115189"
+
+	// UnknownValue : for QS
+	UnknownValue = "somevalue"
 )
 
 /* precomputed items for Joconde database

@@ -91,6 +91,8 @@ func (it *Item) WriteQS(fname string) error {
 	if qid == "" {
 		qid = "LAST" // Item creation
 		out.WriteString("CREATE " + eol)
+		out.WriteString(fmt.Sprintf("LAST\t%s\t%s%s", "L"+it.Lang, it.Label, eol))
+		out.WriteString(fmt.Sprintf("LAST\t%s\t%s%s", "D"+it.Lang, it.Description, eol))
 	}
 
 	for prop, pv := range it.Properties {
@@ -99,7 +101,7 @@ func (it *Item) WriteQS(fname string) error {
 		if value == "" {
 			continue
 		}
-		if value[0:1] != "Q" {
+		if value[0:1] != "Q" && value != UnknownValue {
 			if IsPropertyLang(prop) {
 				lang = it.Lang
 			}
@@ -130,7 +132,7 @@ func formatQS(props map[string]string, lang string, source bool) string {
 	str := ""
 	for id, v := range props {
 		value := v
-		if value[0:1] != "Q" && value[0:1] != "+" { //TODO test date
+		if value[0:1] != "Q" && value[0:1] != "+" { //TODO Regexp for Qid & date
 			if !IsPropertyLang(id) {
 				lang = ""
 			}
