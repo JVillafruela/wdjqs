@@ -5,9 +5,6 @@ import (
 	"os"
 )
 
-// QSandbox : The Sandbox item
-const QSandbox = "Q4115189"
-
 // PropWithLang : properties needing language qualifier
 var PropWithLang = [...]string{"P1476"}
 
@@ -51,6 +48,35 @@ func (it *Item) AddQualifier(p, q, value string) {
 	it.Properties[p].Qualifiers[q] = value
 }
 
+// AddSource : add a source (reference) to a property. Do nothing if property doesn't exist
+func (it *Item) AddSource(p, s, value string) {
+	_, ok := it.Properties[p]
+	if !ok {
+		return
+	}
+	it.Properties[p].Sources[s] = value
+}
+
+// AddSources : add several sources (references) to a property. Do nothing if property doesn't exist
+func (it *Item) AddSources(p string, sv map[string]string) {
+	_, ok := it.Properties[p]
+	if !ok {
+		return
+	}
+	for s, v := range sv {
+		it.Properties[p].Sources[s] = v
+	}
+}
+
+// AddSourcesToAll : add several sources (references) to each item property.
+func (it *Item) AddSourcesToAll(sv map[string]string) {
+	for p := range it.Properties {
+		for s, v := range sv {
+			it.Properties[p].Sources[s] = v
+		}
+	}
+}
+
 // WriteQS : writes QuickStatements in file
 // https://www.wikidata.org/wiki/Help:QuickStatements
 func (it *Item) WriteQS(fname string) error {
@@ -70,6 +96,9 @@ func (it *Item) WriteQS(fname string) error {
 	for prop, pv := range it.Properties {
 		lang := ""
 		value := pv.Value
+		if value == "" {
+			continue
+		}
 		if value[0:1] != "Q" {
 			if IsPropertyLang(prop) {
 				lang = it.Lang
@@ -77,7 +106,8 @@ func (it *Item) WriteQS(fname string) error {
 			value = quote(value, lang)
 		}
 		qstr := it.formatQualifiers(prop)
-		line := fmt.Sprintf("%s\t%s\t%s%s%s", qid, prop, value, qstr, eol)
+		sstr := it.formatSources(prop)
+		line := fmt.Sprintf("%s\t%s\t%s%s%s%s", qid, prop, value, qstr, sstr, eol)
 		_, err := out.WriteString(line)
 		if err != nil {
 			return err
@@ -88,19 +118,32 @@ func (it *Item) WriteQS(fname string) error {
 
 // format the qualifiers section for property if any
 func (it *Item) formatQualifiers(prop string) string {
-	qstr := ""
-	for qid, qv := range it.Properties[prop].Qualifiers {
-		lang := ""
-		value := qv
-		if qv[0:1] != "Q" {
-			if IsPropertyLang(qid) {
-				lang = it.Lang
+	return formatQS(it.Properties[prop].Qualifiers, it.Lang, false)
+}
+
+// format the sources section for property if any
+func (it *Item) formatSources(prop string) string {
+	return formatQS(it.Properties[prop].Sources, it.Lang, true)
+}
+
+func formatQS(props map[string]string, lang string, source bool) string {
+	str := ""
+	for id, v := range props {
+		value := v
+		if value[0:1] != "Q" && value[0:1] != "+" { //TODO test date
+			if !IsPropertyLang(id) {
+				lang = ""
 			}
 			value = quote(value, lang)
 		}
-		qstr = fmt.Sprintf("%s\t%s\t%s", qstr, qid, value)
+
+		if source && id[0:1] == "P" {
+			id = "S" + id[1:]
+		}
+
+		str = fmt.Sprintf("%s\t%s\t%s", str, id, value)
 	}
-	return qstr
+	return str
 }
 
 //Quote string, prefixing with lang code if needed

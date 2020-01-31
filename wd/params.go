@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+const (
+	// QJoconde : Joconde db item
+	QJoconde = "Q809825"
+	// QSandbox : the Sandbox item
+	QSandbox = "Q4115189"
+)
+
 /* precomputed items for Joconde database
    source : db dump in csv format
 */

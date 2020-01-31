@@ -8,19 +8,23 @@ import (
 	"github.com/JVillafruela/wdjqs/wd"
 )
 
-func main() {
+const (
+	PInstanceOf    = "P31"
+	PCreator       = "P170"
+	PAdminLocation = "P131" // localisation administrative
+	PLocation      = "P276"
+	PInventory     = "P217"
+	PCollection    = "P195"
+	PMaterial      = "P186"
+	PJocondeID     = "P347"
+	PTitle         = "P1476"
+	//used for sources
+	PStatedIn     = "P248"
+	PReferenceURL = "P854"
+	PRetrieved    = "P813"
+)
 
-	const (
-		PInstanceOf    = "P31"
-		PCreator       = "P170"
-		PAdminLocation = "P131" // localisation administrative
-		PLocation      = "P276"
-		PInventory     = "P217"
-		PCollection    = "P195"
-		PMaterial      = "P186"
-		PJocondeID     = "P347"
-		PTitle         = "P1476"
-	)
+func main() {
 
 	ref := "09940004427"
 
@@ -107,6 +111,8 @@ func main() {
 
 	item.AddProperty(PJocondeID, a.Reference)
 
+	addSources(&item, a.ReferenceURL)
+
 	item.Qid = wd.QSandbox
 	item.WriteQS("qs.txt")
 	if err != nil {
@@ -114,4 +120,14 @@ func main() {
 	}
 
 	log.Println("Statements written in qs.txt")
+}
+
+func addSources(it *wd.Item, url string) {
+	today := time.Now().Format("+2006-01-02T00:00:00Z/11") // YYYY-MM-DD
+	sources := map[string]string{
+		PStatedIn:     wd.QJoconde,
+		PReferenceURL: url,
+		PRetrieved:    today,
+	}
+	it.AddSourcesToAll(sources)
 }
