@@ -12,6 +12,9 @@ const (
 
 	// UnknownValue : for QS
 	UnknownValue = "somevalue"
+
+	//UnitCm unit centimeter
+	UnitCm = "U174728"
 )
 
 /* precomputed items for Joconde database

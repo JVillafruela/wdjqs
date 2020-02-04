@@ -111,6 +111,14 @@ func main() {
 		item.AddProperty(PMaterial, qid)
 	}
 
+	if a.Dimensions != "" {
+		//TODO :
+		//height, width := joconde.ParseDimensions(a.Dimensions)
+		//In the meantime add dummy values in order to have them sourced
+		item.AddProperty(PHeight, "0"+wd.UnitCm)
+		item.AddProperty(PWidth, "0"+wd.UnitCm)
+	}
+
 	// TODO decode a.Dimensions
 	// on ne peut pas avoir de sources sur "somevalue"
 	// item.AddProperty(PHeight, wd.UnknownValue)
@@ -127,6 +135,7 @@ func main() {
 	log.Println("- Dimensions  : ", a.Dimensions)
 	log.Println("- School      : ", a.School)
 	log.Println("- Vintage     : ", a.Vintage)
+	log.Println("- Dimensions  : ", a.Dimensions)
 
 	item.WriteQS("qs.txt")
 	if err != nil {

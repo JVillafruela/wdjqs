@@ -3,6 +3,7 @@ package wd
 import (
 	"fmt"
 	"os"
+	"regexp"
 )
 
 // PropWithLang : properties needing language qualifier
@@ -101,7 +102,7 @@ func (it *Item) WriteQS(fname string) error {
 		if value == "" {
 			continue
 		}
-		if value[0:1] != "Q" && value != UnknownValue {
+		if !isQid(value) && !isDate(value) && !isDimension(value) { // string value
 			if IsPropertyLang(prop) {
 				lang = it.Lang
 			}
@@ -132,7 +133,7 @@ func formatQS(props map[string]string, lang string, source bool) string {
 	str := ""
 	for id, v := range props {
 		value := v
-		if value[0:1] != "Q" && value[0:1] != "+" { //TODO Regexp for Qid & date
+		if !isQid(v) && !isDate(v) && !isDimension(v) { // string value
 			if !IsPropertyLang(id) {
 				lang = ""
 			}
@@ -166,4 +167,22 @@ func IsPropertyLang(prop string) bool {
 		}
 	}
 	return false
+}
+
+//isQid : returns true if value is a Qid
+func isQid(value string) bool {
+	match, _ := regexp.MatchString(`^Q\d+`, value)
+	return match
+}
+
+// isDimension : return true if value is a dimension written as number unit
+// only unit supported : cm (Q174728)
+func isDimension(value string) bool {
+	match, _ := regexp.MatchString(`^(\d+((\.)(\d))*)`+UnitCm, value)
+	return match
+}
+
+// isDimension : return true if value is a date eg. +2020-02-04T00:00:00Z/11
+func isDate(value string) bool {
+	return len(value) > 11 && value[0:1] == "+" && value[11:] == "T00:00:00Z/11"
 }
